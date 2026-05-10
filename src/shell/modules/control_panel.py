@@ -209,6 +209,7 @@ class ControlPanel(Window, Singleton):
         # allow stack to grow and shrink horizontally with each child
         # TODO: there has to be a better way to do this...
         self.main_content_stack.set_hhomogeneous(False)
+        self.main_content_stack.set_vhomogeneous(False)
 
         self.show_main_view()
 

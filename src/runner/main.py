@@ -6,7 +6,7 @@ from modules.runner import Runner
 
 
 def main():
-    APP_NAME = "Gem-Runner"
+    APP_NAME = "Zenith-Runner"
 
     setproctitle.setproctitle(APP_NAME)
 

@@ -12,7 +12,7 @@ from pathlib import Path
 from loguru import logger
 import json
 
-HISTORY_FILE_PATH = "/home/cody/.shell/runner_history.json"
+HISTORY_FILE_PATH = "~/.zenith/runner_history.json"
 
 
 class AppElement(Button):

@@ -1,3 +1,3 @@
-cd /home/cody/Fabric
+cd ~/Zenith || exit
 source .venv/bin/activate
-python shell/main.py
+python src/shell/main.py

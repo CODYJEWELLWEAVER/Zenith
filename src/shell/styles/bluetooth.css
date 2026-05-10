@@ -1,5 +1,6 @@
 .bluetooth-overview-icon {
     font-family: tabler-icons;
+    font-size: 30px;
 }
 
 .bluetooth-overview-label {
@@ -25,6 +26,12 @@
 .bluetooth-connections-icon {
     font-family: tabler-icons;
     font-size: 40px;
+}
+
+#bluetooth-connections {
+    background-color: var(--background);
+    border-radius: 0px 0px 20px 20px;
+    min-height: 575px;
 }
 
 #bluetooth-devices-scrolled-window {

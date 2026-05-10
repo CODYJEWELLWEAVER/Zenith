@@ -1,0 +1,10 @@
+:vars {
+    --foreground: #dbf4ff;
+    --foreground-alt: #ffffff;
+    --background: #131313;
+    --background-alt: #303030;
+    --background-highlight: #505050;
+    --highlight: #f0eeff;
+    --status-ok: #1eae42;
+    --status-fail: #ffece9;
+}

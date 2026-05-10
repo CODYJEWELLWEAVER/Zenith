@@ -4,12 +4,14 @@ from fabric.widgets.image import Image
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.button import Button
 from fabric.widgets.label import Label
+from fabric.widgets.flowbox import FlowBox
 
 from util.ui import add_hover_cursor
 from util.helpers import get_pixbuff
 from services.theme import ThemeService
 import config.icons as Icons
 
+from material_color_utilities import Variant
 from pathlib import Path
 
 
@@ -20,7 +22,7 @@ class ThemeSettings(Box):
             style_classes="view-box",
             spacing=20,
             visible=True,
-            orientation="h",
+            orientation="v",
             v_expand=True,
             v_align="center",
             **kwargs,
@@ -48,9 +50,16 @@ class ThemeSettings(Box):
         add_hover_cursor(self.back_button)
 
         self.children = [
-            self.refresh_button,
-            self.wallpaper_viewer,
-            self.back_button,
+            self.theme_options,
+            Box(
+                spacing=20, 
+                orientation="h",
+                children=[
+                    self.refresh_button,
+                self.wallpaper_viewer,
+                self.back_button,
+                ],
+            )
         ]
 
 
@@ -102,20 +111,31 @@ class Wallpaper(EventBox):
             self.service.update_wallpaper(self.wallpaper)
 
 
-class ThemeOptions(Box):
+class ThemeOptions(FlowBox):
     def __init__(self, **kwargs):
         self.service = ThemeService.get_instance()
 
         super().__init__(
             name="theme-options",
-            orientation="v",
-            v_expand=True,
-            h_epand=True,
-            children=[],
+            orientation="h",
+            v_expand=False,
+            h_expand=False,
             **kwargs,
         )
 
+        self.children = [
+            ThemeVariantButton(variant=variant) for variant in Variant.__members__.values()
+        ]    
+    
 
 class ThemeVariantButton(Button):
-    def __init__(self, **kwargs):
-        super().__init__(label=Label(), on_clicked=lambda *_: None)
+    def __init__(self, variant: Variant, **kwargs):
+        self.variant = variant
+
+        super().__init__(
+            style_classes="theme-variant-button",
+            child=Label(str(variant).rsplit(".")[-1], style_classes="theme-variant-label"), 
+            on_clicked=lambda *_: None
+        )
+
+        add_hover_cursor(self)

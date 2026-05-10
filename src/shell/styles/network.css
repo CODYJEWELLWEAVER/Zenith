@@ -16,6 +16,7 @@
 
 .network-control-icon {
     font-family: tabler-icons;
+    font-size: 30px;
 }
 
 .network-control-label {
@@ -25,6 +26,7 @@
 #connection-settings {
     background-color: var(--background);
     border-radius: 0px 0px 20px 20px;
+    min-height: 575px;
 }
 
 #connection-settings-overview {

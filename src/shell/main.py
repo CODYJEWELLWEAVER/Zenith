@@ -20,12 +20,11 @@ def main():
     init_data_directory()
     logger.add(STORAGE_DIRECTORY + "shell.log", retention="1 days")
 
-    APP_NAME = "Gem-Shell"
+    APP_NAME = "Zenith"
     setproctitle.setproctitle(APP_NAME)
 
     asyncio.set_event_loop_policy(GLibEventLoopPolicy())
 
-    # init theme service here so we update styles on launch
     ThemeService.get_instance()
     control_panel = ControlPanel.get_instance()
     bar = Bar()

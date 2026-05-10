@@ -5,7 +5,7 @@ from material_color_utilities import Variant
 
 from util.theme import ThemeColors
 
-COLOR_STYLESHEET = os.getcwd() + "/shell/styles/colors.css"
+COLOR_STYLESHEET = os.getcwd() + "/src/shell/styles/colors.css"
 
 WALLPAPERS_DIR = Path("~/Pictures/Wallpapers").expanduser()
 
@@ -21,6 +21,6 @@ DEFAULT_COLOR_THEME = ThemeColors(
     "#ffb4ab",
 )
 
-DEFAULT_VARIANT = Variant.EXPRESSIVE
+DEFAULT_VARIANT = Variant.RAINBOW
 
 DEFAULT_CONTRAST: float = 10.0
