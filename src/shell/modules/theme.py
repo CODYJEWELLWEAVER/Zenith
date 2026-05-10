@@ -4,7 +4,6 @@ from fabric.widgets.image import Image
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.button import Button
 from fabric.widgets.label import Label
-from fabric.widgets.flowbox import FlowBox
 
 from util.ui import add_hover_cursor
 from util.helpers import get_pixbuff
@@ -111,31 +110,79 @@ class Wallpaper(EventBox):
             self.service.update_wallpaper(self.wallpaper)
 
 
-class ThemeOptions(FlowBox):
+class ThemeOptions(Box):
     def __init__(self, **kwargs):
         self.service = ThemeService.get_instance()
 
         super().__init__(
             name="theme-options",
-            orientation="h",
-            v_expand=False,
-            h_expand=False,
+            orientation="v",
+            v_align="center",
+            spacing=20,
             **kwargs,
         )
 
-        self.children = [
+        toggle_dark_mode_button = DarkModeToggle()
+
+        theme_variant_buttons = [
             ThemeVariantButton(variant=variant) for variant in Variant.__members__.values()
+        ]
+
+        self.children = [toggle_dark_mode_button] + [
+            Box(
+                spacing = 20,
+                orientation="h",
+                h_expand=False,
+                h_align="center",
+                children=theme_variant_buttons[i:min(i+5, len(theme_variant_buttons))],
+            )
+            for i in range(0, len(theme_variant_buttons), 5)
         ]    
     
 
 class ThemeVariantButton(Button):
     def __init__(self, variant: Variant, **kwargs):
+        self.service = ThemeService.get_instance()
         self.variant = variant
+        variant_str = str(variant).rsplit(".")[-1]
+        variant_str = variant_str[0] + variant_str[1:].lower()
+        variant_label = Label(
+            variant_str, 
+            style_classes="theme-variant-label"
+        )
 
         super().__init__(
+            h_expand=True,
+            h_align="fill",
             style_classes="theme-variant-button",
-            child=Label(str(variant).rsplit(".")[-1], style_classes="theme-variant-label"), 
-            on_clicked=lambda *_: None
+            child=variant_label, 
+            on_clicked=self._on_clicked,
+            **kwargs
         )
 
         add_hover_cursor(self)
+
+    def _on_clicked(self, *args):
+        self.service.variant = self.variant
+
+
+class DarkModeToggle(Button):
+    def __init__(self, **kwargs):
+        self.service = ThemeService.get_instance()
+        self.label = Label(
+            "Dark" if self.service.dark else "Light",
+        )
+
+        super().__init__(
+            style_classes="dark-mode-toggle-button",
+            child=self.label,
+            on_clicked=self._on_clicked,
+            h_align="center",
+            **kwargs
+        )
+
+        add_hover_cursor(self)
+
+    def _on_clicked(self, *args):
+        self.service.dark = not self.service.dark
+        self.label.set_text("Dark" if self.service.dark else "Light")

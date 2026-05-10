@@ -23,7 +23,6 @@ class ThemeService(Service, Singleton):
         super().__init__(**kwargs)
 
         self._loop = asyncio.get_event_loop()
-
         self._wallpaper = CURRENT_WALLPAPER_PATH
         self._colors = DEFAULT_COLOR_THEME
         self._variant = DEFAULT_VARIANT
@@ -98,7 +97,7 @@ class ThemeService(Service, Singleton):
                 self._wallpaper.resolve(), self.contrast, self.variant, self.dark
             )
             self.update_color_styles()
-
+            
         self._loop.create_task(_update())
 
     def create_colortheme_from_image(

@@ -22,3 +22,32 @@
 #theme-contrast-scale slider {
     background-color: var(--background);
 }
+
+#theme-options {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.theme-variant-button {
+    min-width: 100px;
+    padding: 10px;
+}
+
+.theme-variant-button:hover {
+    background-color: var(--background-alt);
+    box-shadow: 0px 0px 5px var(--highlight);
+}
+
+.theme-variant-label {
+    font-size: 20px;
+}
+
+.dark-mode-toggle-button {
+    padding: 10px;
+    min-width: 100px;
+}
+
+.dark-mode-toggle-button:hover {
+    background-color: var(--background-alt);
+    box-shadow: 0px 0px 5px var(--highlight);
+}
