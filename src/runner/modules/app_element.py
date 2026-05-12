@@ -102,11 +102,12 @@ class AppElementList:
         return char_score
 
     def _init_history_file(self) -> None:
-        self._path = Path(HISTORY_FILE_PATH)
+        self._path = Path(HISTORY_FILE_PATH).expanduser()
 
         try:
             if not self._path.exists():
-                json.dump(list(), self._path.open("w"))
+                with open(self._path, "x") as history_file:
+                    json.dump(list(), history_file)
 
             json_file = self._path.open("r+")
         except Exception as e:
