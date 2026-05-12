@@ -189,10 +189,12 @@ class ToDoList(Box):
             elements.append(
                 ToDoListElement(
                     item,
-                    on_toggle_completed=lambda *_,
-                    item=item: self.to_do_service.toggle_item_completed(item),
-                    on_delete=lambda *_,
-                    item=item: self.to_do_service.delete_to_do_item(item),
+                    on_toggle_completed=lambda *_, item=item: (
+                        self.to_do_service.toggle_item_completed(item)
+                    ),
+                    on_delete=lambda *_, item=item: (
+                        self.to_do_service.delete_to_do_item(item)
+                    ),
                     on_add_child=lambda *_, item=item: self.show_creation_view(
                         parent=item
                     ),
@@ -202,15 +204,11 @@ class ToDoList(Box):
                 elements.append(
                     ToDoListElement(
                         child,
-                        on_toggle_completed=lambda *_,
-                        item=item,
-                        child=child: self.to_do_service.toggle_child_completed(
-                            item, child
+                        on_toggle_completed=lambda *_, item=item, child=child: (
+                            self.to_do_service.toggle_child_completed(item, child)
                         ),
-                        on_delete=lambda *_,
-                        item=item,
-                        child=child: self.to_do_service.delete_to_do_item_child(
-                            item, child
+                        on_delete=lambda *_, item=item, child=child: (
+                            self.to_do_service.delete_to_do_item_child(item, child)
                         ),
                     )
                 )

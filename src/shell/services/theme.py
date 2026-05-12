@@ -1,14 +1,33 @@
 from fabric.core.service import Service, Property, Signal
-from fabric.utils.helpers import exec_shell_command_async, invoke_repeater, exec_shell_command
+from fabric.utils.helpers import (
+    exec_shell_command_async,
+    invoke_repeater,
+    exec_shell_command,
+)
 
-from config.theme import DEFAULT_COLOR_THEME, DEFAULT_CONTRAST, DEFAULT_VARIANT
 from util.singleton import Singleton
 from util.theme import (
     ThemeColors,
 )
+from util.helpers import (
+    get_env_var_bool,
+    get_env_var_str,
+    set_env_var_bool,
+    set_env_var_str,
+)
 
 from material_color_utilities import Theme, theme_from_image, Variant
-from config.theme import COLOR_STYLESHEET, CURRENT_WALLPAPER_PATH, WALLPAPERS_DIR
+from config.theme import (
+    COLOR_STYLESHEET,
+    CURRENT_WALLPAPER_PATH,
+    DEFAULT_COLOR_THEME,
+    DEFAULT_CONTRAST,
+    DEFAULT_VARIANT,
+    ENV_THEME_VARIANT,
+    STRING_TO_VARIANT_MAP,
+    WALLPAPERS_DIR,
+    ENV_DARKMODE,
+)
 import re
 from PIL import Image
 from pathlib import Path
@@ -25,9 +44,11 @@ class ThemeService(Service, Singleton):
         self._loop = asyncio.get_event_loop()
         self._wallpaper = CURRENT_WALLPAPER_PATH
         self._colors = DEFAULT_COLOR_THEME
-        self._variant = DEFAULT_VARIANT
+        self._variant = self._get_variant_from_str(
+            get_env_var_str(ENV_THEME_VARIANT, DEFAULT_VARIANT)
+        )
         self._contrast = DEFAULT_CONTRAST
-        self._dark = True
+        self._dark = get_env_var_bool(ENV_DARKMODE)
         self._wallpapers = []
 
         self.load_wallpapers()
@@ -59,6 +80,7 @@ class ThemeService(Service, Singleton):
     @variant.setter
     def variant(self, variant: Variant) -> None:
         self._variant = variant
+        set_env_var_str(ENV_THEME_VARIANT, variant.name)
         self.theme_changed()
         self.notify("variant")
 
@@ -79,6 +101,7 @@ class ThemeService(Service, Singleton):
     @dark.setter
     def dark(self, dark: bool) -> None:
         self._dark = dark
+        set_env_var_bool(ENV_DARKMODE, dark)
         self.theme_changed()
         self.notify("dark")
 
@@ -97,7 +120,7 @@ class ThemeService(Service, Singleton):
                 self._wallpaper.resolve(), self.contrast, self.variant, self.dark
             )
             self.update_color_styles()
-            
+
         self._loop.create_task(_update())
 
     def create_colortheme_from_image(
@@ -167,7 +190,7 @@ class ThemeService(Service, Singleton):
                 color_stylesheet.write(styles)
 
         except Exception as e:
-            print(f"Error: Could not update color styles! {e}")
+            logger.error(f"Error: Could not update color styles! {e}")
 
     def hyprpaper_update(self):
         exec_shell_command(f"hyprctl hyprpaper wallpaper , {CURRENT_WALLPAPER_PATH},")
@@ -175,10 +198,10 @@ class ThemeService(Service, Singleton):
     def update_wallpaper(self, new_path: Path) -> None:
         # gotta trick hyprpaper into thinking the symlink is a photo
         if " " in str(new_path):
-            logger.error("New wallpaper path contains a space. Spaces are not allowed in wallpaper paths.")
-        proc, _ = exec_shell_command_async(
-            f"ln -sf {str(new_path)} {self._wallpaper}"
-        )
+            logger.error(
+                "New wallpaper path contains a space. Spaces are not allowed in wallpaper paths."
+            )
+        proc, _ = exec_shell_command_async(f"ln -sf {str(new_path)} {self._wallpaper}")
 
         def on_sm_created(*args):
             self.theme_changed()
@@ -193,3 +216,7 @@ class ThemeService(Service, Singleton):
             return []
 
         self.wallpapers = [path for path in WALLPAPERS_DIR.iterdir()]
+
+    
+    def _get_variant_from_str(self, str):
+        return STRING_TO_VARIANT_MAP[str]

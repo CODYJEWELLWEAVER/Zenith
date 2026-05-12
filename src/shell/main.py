@@ -8,7 +8,7 @@ from modules.notifications import NotificationPopUp
 from modules.osd import VolumeOSD
 from services.theme import ThemeService
 
-from util.helpers import init_data_directory
+from util.helpers import init_data_directory, init_env
 from config.storage import STORAGE_DIRECTORY
 
 import asyncio
@@ -18,6 +18,7 @@ from gi.events import GLibEventLoopPolicy
 @logger.catch
 def main():
     init_data_directory()
+    init_env()
     logger.add(STORAGE_DIRECTORY + "shell.log", retention="1 days")
 
     APP_NAME = "Zenith"

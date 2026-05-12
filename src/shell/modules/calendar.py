@@ -215,9 +215,8 @@ class Calendar(Box):
             self.day_view_list.add(
                 ReminderBox(
                     reminder,
-                    on_delete=lambda *_,
-                    _reminder=reminder: self.reminder_service.delete_reminder(
-                        _reminder
+                    on_delete=lambda *_, _reminder=reminder: (
+                        self.reminder_service.delete_reminder(_reminder)
                     ),
                 )
             )

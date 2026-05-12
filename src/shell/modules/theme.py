@@ -51,14 +51,14 @@ class ThemeSettings(Box):
         self.children = [
             self.theme_options,
             Box(
-                spacing=20, 
+                spacing=20,
                 orientation="h",
                 children=[
                     self.refresh_button,
-                self.wallpaper_viewer,
-                self.back_button,
+                    self.wallpaper_viewer,
+                    self.back_button,
                 ],
-            )
+            ),
         ]
 
 
@@ -125,20 +125,23 @@ class ThemeOptions(Box):
         toggle_dark_mode_button = DarkModeToggle()
 
         theme_variant_buttons = [
-            ThemeVariantButton(variant=variant) for variant in Variant.__members__.values()
+            ThemeVariantButton(variant=variant)
+            for variant in Variant.__members__.values()
         ]
 
         self.children = [toggle_dark_mode_button] + [
             Box(
-                spacing = 20,
+                spacing=20,
                 orientation="h",
                 h_expand=False,
                 h_align="center",
-                children=theme_variant_buttons[i:min(i+5, len(theme_variant_buttons))],
+                children=theme_variant_buttons[
+                    i : min(i + 5, len(theme_variant_buttons))
+                ],
             )
             for i in range(0, len(theme_variant_buttons), 5)
-        ]    
-    
+        ]
+
 
 class ThemeVariantButton(Button):
     def __init__(self, variant: Variant, **kwargs):
@@ -146,18 +149,15 @@ class ThemeVariantButton(Button):
         self.variant = variant
         variant_str = str(variant).rsplit(".")[-1]
         variant_str = variant_str[0] + variant_str[1:].lower()
-        variant_label = Label(
-            variant_str, 
-            style_classes="theme-variant-label"
-        )
+        variant_label = Label(variant_str, style_classes="theme-variant-label")
 
         super().__init__(
             h_expand=True,
             h_align="fill",
             style_classes="theme-variant-button",
-            child=variant_label, 
+            child=variant_label,
             on_clicked=self._on_clicked,
-            **kwargs
+            **kwargs,
         )
 
         add_hover_cursor(self)
@@ -178,7 +178,7 @@ class DarkModeToggle(Button):
             child=self.label,
             on_clicked=self._on_clicked,
             h_align="center",
-            **kwargs
+            **kwargs,
         )
 
         add_hover_cursor(self)

@@ -194,7 +194,7 @@ class ControlPanel(Window, Singleton):
         self.main_content_stack = Stack(
             transition_type="over-down-up",
             transition_duration=250,
-            interpolate_size=False, # = True, breaks scrolled windows in views
+            interpolate_size=False,  # = True, breaks scrolled windows in views
             h_expand=True,
             v_expand=True,
             children=[
