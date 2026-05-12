@@ -116,6 +116,11 @@ class ThemeService(Service, Singleton):
 
     def update_theme(self, *args):
         async def _update():
+            if not self._wallpaper.exists():
+                logger.error("Could not find wallpaper! Canceling theme update.")
+                self._colors = DEFAULT_COLOR_THEME
+                return
+            
             self._colors = self.create_colortheme_from_image(
                 self._wallpaper.resolve(), self.contrast, self.variant, self.dark
             )
