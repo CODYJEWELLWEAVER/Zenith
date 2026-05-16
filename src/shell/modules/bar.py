@@ -3,7 +3,7 @@ from fabric.widgets.datetime import DateTime
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.box import Box
 from fabric.widgets.centerbox import CenterBox
-from fabric.hyprland.widgets import WorkspaceButton, Workspaces
+from fabric.hyprland.widgets import HyprlandWorkspaces, WorkspaceButton
 
 from modules.control_panel import ControlPanel
 from modules.media import MediaControl
@@ -40,7 +40,7 @@ class Bar(Window):
         self.disk = Disk()
         self.network = NetworkInfo()
 
-        self.workspaces = Workspaces(
+        self.workspaces = HyprlandWorkspaces(
             name="workspaces",
             buttons=[WorkspaceButton(id) for id in range(1, 11)],
             # button factory to ignore special workspace

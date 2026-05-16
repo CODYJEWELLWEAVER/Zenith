@@ -15,6 +15,7 @@
 @import url(./styles/tools.css);
 @import url(./styles/bluetooth.css);
 @import url(./styles/theme.css);
+@import url(./styles/widgets/switch.css);
 
 * {
     all: unset;
@@ -22,6 +23,7 @@
     font-family: "Lilex Nerd Font Mono";
     font-size: 24px;
     border-radius: 20px;
+    opacity: 1;
 }
 
 .alt-text {
