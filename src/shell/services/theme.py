@@ -101,6 +101,7 @@ class ThemeService(Service, Singleton):
     @dark.setter
     def dark(self, dark: bool) -> None:
         self._dark = dark
+        logger.info(f"Setting darkmode = {dark}")
         set_env_var_bool(ENV_DARKMODE, dark)
         self.theme_changed()
         self.notify("dark")
@@ -120,7 +121,7 @@ class ThemeService(Service, Singleton):
                 logger.error("Could not find wallpaper! Canceling theme update.")
                 self._colors = DEFAULT_COLOR_THEME
                 return
-            
+
             self._colors = self.create_colortheme_from_image(
                 self._wallpaper.resolve(), self.contrast, self.variant, self.dark
             )
@@ -222,6 +223,5 @@ class ThemeService(Service, Singleton):
 
         self.wallpapers = [path for path in WALLPAPERS_DIR.iterdir()]
 
-    
     def _get_variant_from_str(self, str):
         return STRING_TO_VARIANT_MAP[str]

@@ -114,6 +114,10 @@ bluetooth_unpaired: str = "&#xf081;"
 
 brush: str = "&#xebb8;"
 
+sun: str = "&#xf236;"
+
+moon: str = "&#xeaf8;"
+
 weather = {
     "Clear-Night": "&#xece7;",
     "Clear-Day": "&#xeb30;",

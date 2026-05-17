@@ -1,0 +1,44 @@
+.switch-off,
+.switch-on {
+    margin: 4px;
+}
+
+.switch-on trough,
+.switch-off trough {
+    border-radius: 15px;
+    min-width: 70px;
+    min-height: 40px;
+    box-shadow: var(--foreground) 0px 0px 4px;
+    background-color: var(--foreground);
+}
+
+.switch-on slider,
+.switch-off slider {
+    min-width: 30px;
+    min-height: 30px;
+    box-shadow: var(--background-alt) 0px 0px 2px;
+    background-color: var(--background-alt);
+}
+
+.switch-on trough {
+    padding-right: 20px;
+}
+
+.switch-off trough {
+    padding-left: 20px;
+}
+
+.switch-icon-off,
+.switch-icon {
+    font-family: tabler-icons;
+    font-size: 40px;
+    color: var(--background);
+}
+
+.switch-icon {
+    margin-left: 10px;
+}
+
+.switch-icon-off {
+    margin-right: 10px;
+}

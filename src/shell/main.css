@@ -15,7 +15,7 @@
 @import url(./styles/tools.css);
 @import url(./styles/bluetooth.css);
 @import url(./styles/theme.css);
-@import url(./styles/widgets/switch.css);
+@import url(./styles/switch.css);
 
 * {
     all: unset;
@@ -24,6 +24,8 @@
     font-size: 24px;
     border-radius: 20px;
     opacity: 1;
+    transition: background-color 1s cubic-bezier(0.42, 0, 0.58, 1), 
+                color 1s cubic-bezier(0.42, 0, 0.58, 1);
 }
 
 .alt-text {

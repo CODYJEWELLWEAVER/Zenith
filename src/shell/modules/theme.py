@@ -5,6 +5,7 @@ from fabric.widgets.eventbox import EventBox
 from fabric.widgets.button import Button
 from fabric.widgets.label import Label
 
+from widgets.switch import IconSwitch
 from util.ui import add_hover_cursor
 from util.helpers import get_pixbuff
 from services.theme import ThemeService
@@ -122,14 +123,14 @@ class ThemeOptions(Box):
             **kwargs,
         )
 
-        toggle_dark_mode_button = DarkModeToggle()
+        dark_mode_switch = DarkModeSwitch()
 
         theme_variant_buttons = [
             ThemeVariantButton(variant=variant)
             for variant in Variant.__members__.values()
         ]
 
-        self.children = [toggle_dark_mode_button] + [
+        self.children = [dark_mode_switch] + [
             Box(
                 spacing=20,
                 orientation="h",
@@ -166,23 +167,20 @@ class ThemeVariantButton(Button):
         self.service.variant = self.variant
 
 
-class DarkModeToggle(Button):
+class DarkModeSwitch(IconSwitch):
     def __init__(self, **kwargs):
         self.service = ThemeService.get_instance()
-        self.label = Label(
-            "Dark" if self.service.dark else "Light",
-        )
 
         super().__init__(
-            style_classes="dark-mode-toggle-button",
-            child=self.label,
-            on_clicked=self._on_clicked,
-            h_align="center",
-            **kwargs,
+            name="dark-mode-switch",
+            icon=Icons.moon,
+            icon_off=Icons.sun,
+            on_toggled=self._on_toggled,
+            **kwargs
         )
 
-        add_hover_cursor(self)
+        self.set_is_on(self.service.dark)
 
-    def _on_clicked(self, *args):
-        self.service.dark = not self.service.dark
-        self.label.set_text("Dark" if self.service.dark else "Light")
+    def _on_toggled(self, w, switch_on: bool):
+        if switch_on != self.service.dark:
+            self.service.dark = switch_on
