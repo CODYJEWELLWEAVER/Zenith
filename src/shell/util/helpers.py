@@ -80,6 +80,7 @@ def init_env():
                 [
                     "export ZENITH_DARKMODE=1\n",
                     "export ZENITH_THEME_VARIANT=MONOCHROME\n",
+                    "export ZENITH_THEME_HIGH_CONTRAST=0\n",
                 ]
             )
 

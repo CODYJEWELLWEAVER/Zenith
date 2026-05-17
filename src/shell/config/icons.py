@@ -118,6 +118,10 @@ sun: str = "&#xf236;"
 
 moon: str = "&#xeaf8;"
 
+contrast: str = "&#xec4e;"
+
+contrast_off: str = "&#xf3db;"
+
 weather = {
     "Clear-Night": "&#xece7;",
     "Clear-Day": "&#xeb30;",

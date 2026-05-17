@@ -1,3 +1,5 @@
+from typing import Literal
+
 from fabric.core.service import Service, Property, Signal
 from fabric.utils.helpers import (
     exec_shell_command_async,
@@ -21,12 +23,14 @@ from config.theme import (
     COLOR_STYLESHEET,
     CURRENT_WALLPAPER_PATH,
     DEFAULT_COLOR_THEME,
-    DEFAULT_CONTRAST,
+    LOW_CONTRAST,
+    HIGH_CONTRAST,
     DEFAULT_VARIANT,
     ENV_THEME_VARIANT,
     STRING_TO_VARIANT_MAP,
     WALLPAPERS_DIR,
     ENV_DARKMODE,
+    ENV_THEME_HIGH_CONSTRAST,
 )
 import re
 from PIL import Image
@@ -47,7 +51,8 @@ class ThemeService(Service, Singleton):
         self._variant = self._get_variant_from_str(
             get_env_var_str(ENV_THEME_VARIANT, DEFAULT_VARIANT)
         )
-        self._contrast = DEFAULT_CONTRAST
+        self._high_contrast = get_env_var_bool(ENV_THEME_HIGH_CONSTRAST)
+        self._contrast = HIGH_CONTRAST if self._high_contrast else LOW_CONTRAST
         self._dark = get_env_var_bool(ENV_DARKMODE)
         self._wallpapers = []
 
@@ -84,6 +89,19 @@ class ThemeService(Service, Singleton):
         self.theme_changed()
         self.notify("variant")
 
+    @Property(bool, "read-write", default_value=False)
+    def high_contrast(self) -> bool:
+        return self._high_contrast
+    
+    @high_contrast.setter
+    def high_contrast(self, enabled: bool) -> None:
+        contrast_value = HIGH_CONTRAST if enabled else LOW_CONTRAST
+        self.contrast = contrast_value
+        logger.info(f"Setting high contrast = {enabled}")
+        self._high_contrast = enabled
+        set_env_var_bool(ENV_THEME_HIGH_CONSTRAST, enabled)
+        self.notify("high-contrast")
+
     @Property(float, "read-write")
     def contrast(self) -> float:
         return self._contrast
@@ -99,10 +117,10 @@ class ThemeService(Service, Singleton):
         return self._dark
 
     @dark.setter
-    def dark(self, dark: bool) -> None:
-        self._dark = dark
-        logger.info(f"Setting darkmode = {dark}")
-        set_env_var_bool(ENV_DARKMODE, dark)
+    def dark(self, enabled: bool) -> None:
+        self._dark = enabled
+        logger.info(f"Setting dark mode = {enabled}")
+        set_env_var_bool(ENV_DARKMODE, enabled)
         self.theme_changed()
         self.notify("dark")
 

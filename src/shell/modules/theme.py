@@ -123,14 +123,25 @@ class ThemeOptions(Box):
             **kwargs,
         )
 
-        dark_mode_switch = DarkModeSwitch()
+        dark_mode_switch = DarkModeSwitch(h_expand=True,)
+        contrast_switch = ContrastSwitch(h_expand=True,)
 
         theme_variant_buttons = [
             ThemeVariantButton(variant=variant)
             for variant in Variant.__members__.values()
         ]
 
-        self.children = [dark_mode_switch] + [
+        self.children = [
+            Box(
+                spacing=100,
+                orientation="h",
+                h_align="center",
+                children=[
+                    dark_mode_switch,
+                    contrast_switch,
+                ]
+            )
+        ] + [
             Box(
                 spacing=20,
                 orientation="h",
@@ -181,6 +192,23 @@ class DarkModeSwitch(IconSwitch):
 
         self.set_is_on(self.service.dark)
 
-    def _on_toggled(self, w, switch_on: bool):
-        if switch_on != self.service.dark:
-            self.service.dark = switch_on
+    def _on_toggled(self, w, enabled: bool):
+        self.service.dark = enabled
+
+
+class ContrastSwitch(IconSwitch):
+    def __init__(self, **kwargs):
+        self.service = ThemeService.get_instance()
+
+        super().__init__(
+            name="contrast-switch",
+            icon=Icons.contrast,
+            icon_off=Icons.contrast_off,
+            on_toggled=self._on_toggled,
+            **kwargs
+        )
+
+        self.set_is_on(self.service.high_contrast)
+
+    def _on_toggled(self, w, enabled):
+        self.service.high_contrast = enabled
