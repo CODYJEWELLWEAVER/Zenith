@@ -123,8 +123,8 @@ class ThemeOptions(Box):
             **kwargs,
         )
 
-        dark_mode_switch = DarkModeSwitch(h_expand=True,)
-        contrast_switch = ContrastSwitch(h_expand=True,)
+        dark_mode_switch = DarkModeSwitch()
+        contrast_switch = ContrastSwitch()
 
         theme_variant_buttons = [
             ThemeVariantButton(variant=variant)
@@ -139,7 +139,7 @@ class ThemeOptions(Box):
                 children=[
                     dark_mode_switch,
                     contrast_switch,
-                ]
+                ],
             )
         ] + [
             Box(
@@ -187,7 +187,7 @@ class DarkModeSwitch(IconSwitch):
             icon=Icons.moon,
             icon_off=Icons.sun,
             on_toggled=self._on_toggled,
-            **kwargs
+            **kwargs,
         )
 
         self.set_is_on(self.service.dark)
@@ -205,7 +205,7 @@ class ContrastSwitch(IconSwitch):
             icon=Icons.contrast,
             icon_off=Icons.contrast_off,
             on_toggled=self._on_toggled,
-            **kwargs
+            **kwargs,
         )
 
         self.set_is_on(self.service.high_contrast)

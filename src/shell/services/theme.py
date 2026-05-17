@@ -1,5 +1,3 @@
-from typing import Literal
-
 from fabric.core.service import Service, Property, Signal
 from fabric.utils.helpers import (
     exec_shell_command_async,
@@ -92,7 +90,7 @@ class ThemeService(Service, Singleton):
     @Property(bool, "read-write", default_value=False)
     def high_contrast(self) -> bool:
         return self._high_contrast
-    
+
     @high_contrast.setter
     def high_contrast(self, enabled: bool) -> None:
         contrast_value = HIGH_CONTRAST if enabled else LOW_CONTRAST

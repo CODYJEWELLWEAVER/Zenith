@@ -122,6 +122,8 @@ contrast: str = "&#xec4e;"
 
 contrast_off: str = "&#xf3db;"
 
+adjustments_cog: str = "&#xf7ff;"
+
 weather = {
     "Clear-Night": "&#xece7;",
     "Clear-Day": "&#xeb30;",

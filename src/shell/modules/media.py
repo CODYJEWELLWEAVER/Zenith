@@ -1,11 +1,12 @@
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.widgets.button import Button
-from fabric.utils import truncate, bulk_connect
+from fabric.utils import truncate, bulk_connect, exec_shell_command_async
 
 from gi.repository import Playerctl, GdkPixbuf, GLib
 
 from services.media import MediaService
+from widgets.switch import IconSwitch
 from util.ui import add_hover_cursor, toggle_visible
 from util.helpers import get_file_path_from_mpris_url
 from config.media import HEADPHONES
@@ -67,24 +68,22 @@ class MediaControl(Box):
         )
         add_hover_cursor(self.next_track_control)
 
-        mute_label = Label(
-            markup=Icons.volume_muted
-            if self.media_service.is_muted
-            else Icons.volume_high,
-            style_classes="media-control-icon",
+        self.mute_switch = MuteSwitch()
+
+        self.launch_settings = Button(
+            child=Label(markup=Icons.adjustments_cog, style_classes="media-control-icon"),
+            on_clicked=lambda *_: exec_shell_command_async("pavucontrol")
         )
-        self.mute_control = Button(
-            child=mute_label, on_clicked=lambda *_: self.media_service.toggle_mute()
-        )
-        add_hover_cursor(self.mute_control)
+        add_hover_cursor(self.launch_settings)
 
         self.children = [
+            self.launch_settings,
             self.media_info,
             self.output_control,
             self.prev_track_control,
             self.play_control,
             self.next_track_control,
-            self.mute_control,
+            self.mute_switch,
         ]
 
         bulk_connect(
@@ -144,20 +143,6 @@ class MediaControl(Box):
         ):
             self.media_info.set_property("visible", False)
 
-    def update_art(self, metadata: dict):
-        if "mpris:artUrl" in metadata.keys():
-            file_path = get_file_path_from_mpris_url(metadata["mpris:artUrl"])
-            self_width = self.get_preferred_width().natural_width
-            art_pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                file_path, self_width - 60, self_width - 60, True
-            )
-            self.media_panel.art.set_property("pixbuf", art_pixbuf)
-            visible = True
-        else:
-            visible = False
-
-        self.media_panel.art.set_visible(visible)
-
     def on_notify_speaker(self, *args):
         if self.media_service.speaker.name in HEADPHONES:
             icon = Icons.headphones
@@ -169,17 +154,26 @@ class MediaControl(Box):
         self.output_control.children = label
 
     def on_notify_is_muted(self, *args):
-        if self.media_service.is_muted:
-            icon = Icons.volume_muted
-        else:
-            icon = Icons.volume_high
+        self.mute_switch.set_is_on(not self.media_service.is_muted)
 
-        mute_label = Label(markup=icon, style_classes="media-control-icon")
 
-        self.mute_control.children = mute_label
+class MuteSwitch(IconSwitch):
+    def __init__(self, **kwargs):
+        self.media_service = MediaService.get_instance()
 
-    def show_media_info_panel(self, *args):
-        toggle_visible(self.media_panel)
+        super().__init__(
+            small=True,
+            icon=Icons.volume_high,
+            icon_off=Icons.volume_muted,
+            on_toggled=self._on_toggled,
+            **kwargs,
+        )
 
-    def hide_media_info_panel(self, *args):
-        toggle_visible(self.media_panel)
+        self.set_is_on(not self.media_service.is_muted)
+
+    def _on_toggled(self, w, enabled):
+        # ensure that we are consistent with the media service, enabled = not muted 
+        # this ensures we do not toggle mute if the switch was changed as a result of 
+        # mute that did not originate from a click on the switch
+        if enabled == self.media_service.is_muted:
+            self.media_service.toggle_mute()

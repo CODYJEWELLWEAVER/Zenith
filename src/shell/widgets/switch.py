@@ -5,8 +5,6 @@ from fabric.widgets.label import Label
 
 from util.ui import add_hover_cursor
 
-from loguru import logger
-
 
 class Switch(Scale):
     """
@@ -20,7 +18,8 @@ class Switch(Scale):
         orientation="h",
         name=None,
         visible=True,
-        style_classes=["switch-off"],
+        style_classes=[],
+        small=False,
         tooltip_text=None,
         h_align=None,
         v_align=None,
@@ -29,6 +28,11 @@ class Switch(Scale):
         size=None,
         **kwargs,
     ):
+        self.off_style_class = ("" if not small else "small-") + "switch-off"
+        self.on_style_class = ("" if not small else "small-") + "switch-on"
+
+        print(self.off_style_class)
+
         super().__init__(
             orientation=orientation,
             increments=[1, 1],
@@ -36,7 +40,7 @@ class Switch(Scale):
             name=name,
             digits=0,
             visible=visible,
-            style_classes=style_classes,
+            style_classes=[self.off_style_class] + style_classes,
             tooltip_text=tooltip_text,
             h_align=h_align,
             v_align=v_align,
@@ -78,16 +82,15 @@ class Switch(Scale):
         if value == 1 or value == 0:
             self.emit("switch-toggled", (value == 1))
             if value == 0:
-                self.add_style_class("switch-off")
-                self.remove_style_class("switch-on")
+                self.add_style_class(self.off_style_class)
+                self.remove_style_class(self.on_style_class)
             else:
-                self.add_style_class("switch-on")
-                self.remove_style_class("switch-off")
+                self.add_style_class(self.on_style_class)
+                self.remove_style_class(self.off_style_class)
         else:
             binary_value = 0 if value < 0.5 else 1
             # force binary value
             self.set_value(binary_value)
-        
 
 
 class IconSwitch(Overlay):
@@ -104,7 +107,8 @@ class IconSwitch(Overlay):
         orientation="h",
         name=None,
         visible=True,
-        style_classes=["switch-off"],
+        small=False,
+        style_classes=[],
         tooltip_text=None,
         h_align="center",
         v_align="center",
@@ -118,6 +122,7 @@ class IconSwitch(Overlay):
             orientation=orientation,
             name=name,
             visible=visible,
+            small=small,
             style_classes=style_classes,
             tooltip_text=tooltip_text,
             h_align=h_align,
@@ -127,15 +132,19 @@ class IconSwitch(Overlay):
             size=size,
             **kwargs,
         )
+
+        icon_style_class = ("" if not small else "small-") + "switch-icon"
+        icon_off_style_class = ("" if not small else "small-") + "switch-icon-off"
+
         self.icon = Label(
             markup=icon,
-            style_classes="switch-icon",
+            style_classes=icon_style_class,
             h_align="start",
             v_align="center",
         )
         self.icon_off = Label(
             markup=icon_off if icon_off is not None else icon,
-            style_classes="switch-icon-off",
+            style_classes=icon_off_style_class,
             h_align="end",
             v_align="center",
         )
