@@ -1,1 +1,1 @@
-TIMEOUT_DELAY = 750  # milliseconds
+TIMEOUT_DELAY = 1250  # milliseconds

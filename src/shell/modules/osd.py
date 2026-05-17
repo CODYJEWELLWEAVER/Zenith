@@ -1,5 +1,5 @@
 from fabric.widgets.wayland import WaylandWindow as Window
-from fabric.widgets.box import Box
+from fabric.widgets.overlay import Overlay
 from fabric.widgets.label import Label
 
 from widgets.animated_scale import AnimatedScale
@@ -33,29 +33,36 @@ class VolumeOSD(Window):
         self.volume_label = Label(
             markup=Icons.volume_high, style_classes="volume-osd-label"
         )
+        self.muted_label = Label(
+            markup=Icons.volume_muted, style_classes="volume-osd-label"
+        )
 
-        self.content = Box(
-            orientation="v",
-            children=[
-                self.volume_scale,
+        self.volume_label.set_visible(not self.media_service.is_muted)
+        self.muted_label.set_visible(self.media_service.is_muted)
+
+        self.content = Overlay(
+            child=self.volume_scale,
+            overlays=[
                 self.volume_label,
+                self.muted_label,
             ],
         )
 
         self.add(self.content)
 
-        self.media_service.connect("notify::volume", self.on_notify_volume)
+        self.media_service.connect("notify::volume", self._on_notify_volume)
+        self.media_service.connect("notify::is-muted", self._on_notify_is_muted)
 
-        # do allow user to move scale value with clicking
+        # do not allow user to move scale value with clicking
         self.volume_scale.set_sensitive(False)
 
         self.hide()
 
-    def on_timeout_expired(self, *args):
+    def _on_timeout_expired(self, *args):
         self.hide()
         return False
 
-    def on_notify_volume(self, *args):
+    def _on_notify_volume(self, *args):
         if self.timeout_id is not None:
             GLib.source_remove(self.timeout_id)
             self.timeout_id = None
@@ -66,4 +73,8 @@ class VolumeOSD(Window):
 
         self.show()
 
-        self.timeout_id = GLib.timeout_add(TIMEOUT_DELAY, self.on_timeout_expired)
+        self.timeout_id = GLib.timeout_add(TIMEOUT_DELAY, self._on_timeout_expired)
+
+    def _on_notify_is_muted(self, *args):
+        self.volume_label.set_visible(not self.media_service.is_muted)
+        self.muted_label.set_visible(self.media_service.is_muted)
