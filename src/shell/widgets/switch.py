@@ -1,12 +1,13 @@
-from fabric.widgets.scale import Scale
-from fabric.core.service import Signal
+from fabric.core.service import Signal, Property
 from fabric.widgets.overlay import Overlay
 from fabric.widgets.label import Label
+from fabric.widgets.eventbox import EventBox
 
+from widgets.animated_scale import AnimatedScale
 from util.ui import add_hover_cursor
 
 
-class Switch(Scale):
+class SwitchScale(AnimatedScale):
     """
     Binary (On/Off) Switch. "on_toggled" is the callback to perform actions
     when the switch is toggled.
@@ -14,6 +15,7 @@ class Switch(Scale):
 
     def __init__(
         self,
+        init_enabled=False,
         on_toggled: callable | None = None,
         orientation="h",
         name=None,
@@ -31,14 +33,14 @@ class Switch(Scale):
         self.off_style_class = ("" if not small else "small-") + "switch-off"
         self.on_style_class = ("" if not small else "small-") + "switch-on"
 
-        print(self.off_style_class)
-
         super().__init__(
+            bezier_curve=(0.65, 0.29, 0.36, 0.87),
+            duration=0.25,
+            value=(1 if init_enabled else 0),
             orientation=orientation,
             increments=[1, 1],
             has_origin=False,
             name=name,
-            digits=0,
             visible=visible,
             style_classes=[self.off_style_class] + style_classes,
             tooltip_text=tooltip_text,
@@ -50,6 +52,9 @@ class Switch(Scale):
             **kwargs,
         )
 
+        self.set_sensitive(False)
+        self._enabled = init_enabled
+
         self.on_toggled = on_toggled
 
         self.connect("value-changed", self._on_value_changed)
@@ -60,49 +65,39 @@ class Switch(Scale):
         add_hover_cursor(self)
 
     @Signal("switch-toggled", rtype=bool)
-    def switch_toggled(self, is_on: bool) -> None: ...
+    def switch_toggled(self, enabled: bool) -> None: ...
 
-    def is_on(self):
-        return self.value == 1
+    @Property(bool, "read-write", default_value=False)
+    def enabled(self) -> bool:
+        return self._enabled
+    
+    @enabled.setter
+    def enabled(self, new_enabled: bool):
+        self._enabled = new_enabled
 
-    def set_is_on(self, is_on: any):
-        try:
-            value = float(is_on)
-        except ValueError:
-            value = 0.0
-
-        self.set_value(value)
-
-    def toggle(self):
-        self.set_value(0 if self.is_on() else 1)
+    def toggle(self, signal_toggled=True):
+        """If no_signal=True, just update the widget, don't signal. This allows you to 
+        update the switch based on outside actions without triggering side effects."""
+        value = 1 if self.enabled else 0
+        self.animate_value(value)
+        if signal_toggled:
+            self.emit("switch-toggled", self.enabled)
+        
 
     def _on_value_changed(self, *args):
-        value = self.get_value()
+        if self.value == 0:
+            self.add_style_class(self.off_style_class)
+            self.remove_style_class(self.on_style_class)
+        elif self.value == 1:
+            self.add_style_class(self.on_style_class)
+            self.remove_style_class(self.off_style_class)
 
-        if value == 1 or value == 0:
-            self.emit("switch-toggled", (value == 1))
-            if value == 0:
-                self.add_style_class(self.off_style_class)
-                self.remove_style_class(self.on_style_class)
-            else:
-                self.add_style_class(self.on_style_class)
-                self.remove_style_class(self.off_style_class)
-        else:
-            binary_value = 0 if value < 0.5 else 1
-            # force binary value
-            self.set_value(binary_value)
-
-
-class IconSwitch(Overlay):
-    """
-    Binary (On/Off) Switch with icons. If only "icon" is given, then the icon will be the same for
-    both states of the switch.
-    """
-
+class Switch(Overlay):
     def __init__(
         self,
         icon: str,
         icon_off: str | None = None,
+        init_enabled=False,
         on_toggled=None,
         orientation="h",
         name=None,
@@ -117,7 +112,8 @@ class IconSwitch(Overlay):
         size=None,
         **kwargs,
     ):
-        self._switch = Switch(
+        self._switch_scale = SwitchScale(
+            init_enabled=init_enabled,
             on_toggled=on_toggled,
             orientation=orientation,
             name=name,
@@ -149,31 +145,46 @@ class IconSwitch(Overlay):
             v_align="center",
         )
         overlays = [self.icon, self.icon_off]
-        switch_is_on = self._switch.is_on()
-        self.icon_off.set_visible(not switch_is_on)
-        self.icon.set_visible(switch_is_on)
+        self.icon.set_visible(self._switch_scale.enabled)
+        self.icon_off.set_visible(not self._switch_scale.enabled)
+
+        self.switch_event_box = EventBox(
+            events="button-press",
+            child=self._switch_scale,
+            style_classes="switch-event-box",
+        )
+        self.switch_event_box.set_above_child(True)
+        add_hover_cursor(self.switch_event_box)
 
         super().__init__(
-            child=self._switch,
+            child=self.switch_event_box,
             overlays=overlays,
             h_align=h_align,
             v_align=v_align,
         )
 
+        self._switch_scale.animator.connect("finished", self._update_overlay)
+        self.switch_event_box.connect("button-press-event", self.toggle)
+
         self.set_overlay_pass_through(self.icon, True)
         self.set_overlay_pass_through(self.icon_off, True)
-        self._switch.connect("switch-toggled", self._update_overlay)
 
-    def set_is_on(self, is_on: any):
-        self._switch.set_is_on(is_on)
-
-    def toggle(self):
-        self._switch.toggle()
-
-    def _update_overlay(self, _, is_on: bool):
-        if is_on:
+    @Property(bool, "readable", default_value=False)
+    def is_animating(self) -> bool:
+        return self._switch_scale.animator.playing
+    
+    def _update_overlay(self, *args):
+        enabled = self._switch_scale.enabled
+        if enabled:
             self.icon_off.set_visible(False)
             self.icon.set_visible(True)
         else:
             self.icon.set_visible(False)
             self.icon_off.set_visible(True)
+
+    def _set_enabled(self, enabled: bool):
+        self._switch_scale.enabled = enabled
+
+    def toggle(self, signal_toggled=True):
+        self._set_enabled(not self._switch_scale.enabled)
+        self._switch_scale.toggle(signal_toggled)

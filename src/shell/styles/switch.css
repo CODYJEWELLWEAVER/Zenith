@@ -18,14 +18,17 @@
     border-radius: 15px;
     min-width: 70px;
     min-height: 40px;
-    
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 .small-switch-on trough,
 .small-switch-off trough {
     border-radius: 10px;
-    min-width: 55px;
+    min-width: 50px;
     min-height: 30px;
+    padding-left: 15px;
+    padding-right: 15px;
 }
 
 .switch-on slider,
@@ -43,23 +46,6 @@
     box-shadow: var(--background-alt) 0px 0px 2px;
     background-color: var(--background-alt);
 }
-
-.switch-on trough {
-    padding-right: 20px;
-}
-
-.switch-off trough {
-    padding-left: 20px;
-}
-
-.small-switch-on trough {
-    padding-right: 15px;
-}
-
-.small-switch-off trough {
-    padding-left: 15px;
-}
-
 
 .small-switch-icon-off,
 .small-switch-icon,

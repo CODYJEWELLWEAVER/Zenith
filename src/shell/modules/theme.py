@@ -5,7 +5,7 @@ from fabric.widgets.eventbox import EventBox
 from fabric.widgets.button import Button
 from fabric.widgets.label import Label
 
-from widgets.switch import IconSwitch
+from widgets.switch import Switch
 from util.ui import add_hover_cursor
 from util.helpers import get_pixbuff
 from services.theme import ThemeService
@@ -178,37 +178,35 @@ class ThemeVariantButton(Button):
         self.service.variant = self.variant
 
 
-class DarkModeSwitch(IconSwitch):
+class DarkModeSwitch(Switch):
     def __init__(self, **kwargs):
         self.service = ThemeService.get_instance()
 
         super().__init__(
             name="dark-mode-switch",
+            init_enabled=self.service.dark,
             icon=Icons.moon,
             icon_off=Icons.sun,
             on_toggled=self._on_toggled,
             **kwargs,
         )
 
-        self.set_is_on(self.service.dark)
-
     def _on_toggled(self, w, enabled: bool):
         self.service.dark = enabled
 
 
-class ContrastSwitch(IconSwitch):
+class ContrastSwitch(Switch):
     def __init__(self, **kwargs):
         self.service = ThemeService.get_instance()
 
         super().__init__(
             name="contrast-switch",
+            init_enabled=self.service.high_contrast,
             icon=Icons.contrast,
             icon_off=Icons.contrast_off,
             on_toggled=self._on_toggled,
             **kwargs,
         )
-
-        self.set_is_on(self.service.high_contrast)
 
     def _on_toggled(self, w, enabled):
         self.service.high_contrast = enabled

@@ -6,7 +6,7 @@ from fabric.utils import truncate, bulk_connect, exec_shell_command_async
 from gi.repository import Playerctl, GLib
 
 from services.media import MediaService
-from widgets.switch import IconSwitch
+from widgets.switch import Switch
 from util.ui import add_hover_cursor
 from config.media import HEADPHONES
 import config.icons as Icons
@@ -155,14 +155,16 @@ class MediaControl(Box):
         self.output_control.children = label
 
     def on_notify_is_muted(self, *args):
-        self.mute_switch.set_is_on(not self.media_service.is_muted)
+        if not self.mute_switch.is_animating:
+            self.mute_switch.toggle(signal_toggled=False)
 
 
-class MuteSwitch(IconSwitch):
+class MuteSwitch(Switch):
     def __init__(self, **kwargs):
         self.media_service = MediaService.get_instance()
 
         super().__init__(
+            init_enabled=(not self.media_service.is_muted),
             small=True,
             icon=Icons.volume_high,
             icon_off=Icons.volume_muted,
@@ -170,11 +172,5 @@ class MuteSwitch(IconSwitch):
             **kwargs,
         )
 
-        self.set_is_on(not self.media_service.is_muted)
-
     def _on_toggled(self, w, enabled):
-        # ensure that we are consistent with the media service, enabled = not muted
-        # this ensures we do not toggle mute if the switch was changed as a result of
-        # mute that did not originate from a click on the switch
-        if enabled == self.media_service.is_muted:
-            self.media_service.toggle_mute()
+        self.media_service.toggle_mute()
